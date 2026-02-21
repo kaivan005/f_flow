@@ -7,6 +7,11 @@ function VehicleRegistry() {
   const [vehicles, setVehicles] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterType, setFilterType] = useState('All')
+  const [filterStatus, setFilterStatus] = useState('All')
+  const [sortBy, setSortBy] = useState('name')
+  const [sortOrder, setSortOrder] = useState('asc')
   const [formData, setFormData] = useState({
     vehicle_name: '',
     model: '',
@@ -32,6 +37,71 @@ function VehicleRegistry() {
       console.error('Failed to fetch vehicles:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const getFilteredAndSortedVehicles = () => {
+    let filtered = vehicles.filter(vehicle => {
+      const matchSearch = vehicle.vehicle_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         vehicle.license_plate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
+      
+      const matchType = filterType === 'All' || vehicle.vehicle_type === filterType
+      const matchStatus = filterStatus === 'All' || vehicle.status === filterStatus
+      
+      return matchSearch && matchType && matchStatus
+    })
+
+    filtered.sort((a, b) => {
+      let aVal, bVal
+
+      switch(sortBy) {
+        case 'name':
+          aVal = a.vehicle_name.toLowerCase()
+          bVal = b.vehicle_name.toLowerCase()
+          break
+        case 'type':
+          aVal = a.vehicle_type
+          bVal = b.vehicle_type
+          break
+        case 'status':
+          aVal = a.status
+          bVal = b.status
+          break
+        case 'capacity':
+          aVal = a.max_capacity_kg
+          bVal = b.max_capacity_kg
+          break
+        case 'odometer':
+          aVal = a.odometer_km
+          bVal = b.odometer_km
+          break
+        default:
+          aVal = a.vehicle_name
+          bVal = b.vehicle_name
+      }
+
+      if (typeof aVal === 'string') {
+        return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal)
+      } else {
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal
+      }
+    })
+
+    return filtered
+  }
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this vehicle?')) {
+      try {
+        const response = await vehicleService.delete(id)
+        if (response.success) {
+          await fetchVehicles()
+        }
+      } catch (error) {
+        console.error('Failed to delete vehicle:', error)
+        alert('Failed to delete vehicle.')
+      }
     }
   }
 
@@ -78,20 +148,6 @@ function VehicleRegistry() {
     }
   }
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this vehicle?')) {
-      try {
-        const response = await vehicleService.delete(id)
-        if (response.success) {
-          await fetchVehicles()
-        }
-      } catch (error) {
-        console.error('Failed to delete vehicle:', error)
-        alert('Failed to delete vehicle.')
-      }
-    }
-  }
-
   return (
     <Layout>
       <div className="vehicle-registry">
@@ -105,7 +161,76 @@ function VehicleRegistry() {
           </button>
         </div>
 
-        {showForm && (
+        <div className="filters-section">
+          <div className="filter-group">
+            <input
+              type="text"
+              placeholder="Search by name, license plate, or model..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          
+          <div className="filter-controls">
+            <select 
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="filter-select"
+            >
+              <option value="All">All Types</option>
+              <option value="Truck">Truck</option>
+              <option value="Van">Van</option>
+              <option value="Bike">Bike</option>
+            </select>
+
+            <select 
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="filter-select"
+            >
+              <option value="All">All Status</option>
+              <option value="Available">Available</option>
+              <option value="On Trip">On Trip</option>
+              <option value="In Shop">In Shop</option>
+              <option value="Retired">Retired</option>
+            </select>
+
+            <div className="sort-controls">
+              <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="filter-select"
+              >
+                <option value="name">Sort by Name</option>
+                <option value="type">Sort by Type</option>
+                <option value="status">Sort by Status</option>
+                <option value="capacity">Sort by Capacity</option>
+                <option value="odometer">Sort by Odometer</option>
+              </select>
+
+              <button 
+                className="sort-order-btn"
+                onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                title={`Currently ${sortOrder === 'asc' ? 'ascending' : 'descending'}`}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  {sortOrder === 'asc' ? (
+                    <>
+                      <line x1="12" y1="5" x2="12" y2="19"/>
+                      <polyline points="19 12 12 19 5 12"/>
+                    </>
+                  ) : (
+                    <>
+                      <line x1="12" y1="19" x2="12" y2="5"/>
+                      <polyline points="5 12 12 5 19 12"/>
+                    </>
+                  )}
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
           <div className="modal-overlay" onClick={() => setShowForm(false)}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
               <h2>Add New Vehicle</h2>
@@ -180,8 +305,8 @@ function VehicleRegistry() {
         <div className="table-container">
           {loading ? (
             <div className="loading">Loading vehicles...</div>
-          ) : vehicles.length === 0 ? (
-            <div className="no-data">No vehicles found. Click "Add Vehicle" to create one.</div>
+          ) : getFilteredAndSortedVehicles().length === 0 ? (
+            <div className="no-data">No vehicles found. Try adjusting your filters or add a new vehicle.</div>
           ) : (
             <table className="data-table">
               <thead>
@@ -197,7 +322,7 @@ function VehicleRegistry() {
                 </tr>
               </thead>
               <tbody>
-                {vehicles.map(vehicle => (
+                {getFilteredAndSortedVehicles().map(vehicle => (
                   <tr key={vehicle.vehicle_id}>
                     <td>{vehicle.vehicle_name}</td>
                     <td>{vehicle.model}</td>
@@ -211,16 +336,30 @@ function VehicleRegistry() {
                       </span>
                     </td>
                     <td>
-                      <select
-                        value={vehicle.status}
-                        onChange={(e) => handleStatusChange(vehicle.vehicle_id, e.target.value)}
-                        className="status-select"
-                      >
-                        <option value="Available">Available</option>
-                        <option value="On Trip">On Trip</option>
-                        <option value="In Shop">In Shop</option>
-                        <option value="Retired">Retired</option>
-                      </select>
+                      <div className="action-buttons">
+                        <select
+                          value={vehicle.status}
+                          onChange={(e) => handleStatusChange(vehicle.vehicle_id, e.target.value)}
+                          className="status-select"
+                        >
+                          <option value="Available">Available</option>
+                          <option value="On Trip">On Trip</option>
+                          <option value="In Shop">In Shop</option>
+                          <option value="Retired">Retired</option>
+                        </select>
+                        <button 
+                          className="delete-btn"
+                          onClick={() => handleDelete(vehicle.vehicle_id)}
+                          title="Delete vehicle"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            <line x1="10" y1="11" x2="10" y2="17"/>
+                            <line x1="14" y1="11" x2="14" y2="17"/>
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

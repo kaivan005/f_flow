@@ -6,7 +6,6 @@ import './Login.css'
 function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState('manager')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -17,7 +16,7 @@ function Login() {
     setLoading(true)
 
     try {
-      const response = await authService.login(email, password, role)
+      const response = await authService.login(email, password)
 
       if (response.success) {
         localStorage.setItem('token', response.token)
@@ -45,35 +44,6 @@ function Login() {
         </div>
 
         <form onSubmit={handleLogin} className="login-form">
-          <div className="role-selector">
-            <label className={`role-option ${role === 'manager' ? 'active' : ''}`}>
-              <input
-                type="radio"
-                name="role"
-                value="manager"
-                checked={role === 'manager'}
-                onChange={(e) => setRole(e.target.value)}
-              />
-              <div className="role-content">
-                <span className="role-icon">👔</span>
-                <span className="role-label">Manager</span>
-              </div>
-            </label>
-            <label className={`role-option ${role === 'dispatcher' ? 'active' : ''}`}>
-              <input
-                type="radio"
-                name="role"
-                value="dispatcher"
-                checked={role === 'dispatcher'}
-                onChange={(e) => setRole(e.target.value)}
-              />
-              <div className="role-content">
-                <span className="role-icon">📋</span>
-                <span className="role-label">Dispatcher</span>
-              </div>
-            </label>
-          </div>
-
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
             <input
@@ -111,17 +81,28 @@ function Login() {
           </div>
 
           <button type="submit" className="login-button" disabled={loading}>
-            {loading ? 'Signing in...' : `Sign in as ${role === 'manager' ? 'Manager' : 'Dispatcher'}`}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
 
           <div className="rbac-note">
-            🔒 RBAC Active: Role-based access controls are enforced
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            RBAC Active: Role-based access controls are enforced
           </div>
 
-          <div className="demo-credentials">
-            <p><strong>Demo Credentials:</strong></p>
-            <p>Manager: manager@fleetflow.com / password123</p>
-            <p>Dispatcher: dispatcher@fleetflow.com / password123</p>
+          <div className="register-link">
+            <p>
+              Don't have an account? 
+              <button 
+                type="button"
+                onClick={() => navigate('/register')}
+                className="link-btn"
+              >
+                Register here
+              </button>
+            </p>
           </div>
         </form>
       </div>

@@ -70,7 +70,16 @@
 }
 
 .nav-icon {
-  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.nav-icon svg {
+  width: 20px;
+  height: 20px;
 }
 
 .nav-label {
@@ -78,6 +87,10 @@
 }
 
 .logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   margin: 1rem 1.5rem;
   padding: 0.75rem 1rem;
   background: rgba(245, 101, 101, 0.1);

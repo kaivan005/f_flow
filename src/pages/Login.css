@@ -172,22 +172,49 @@
   border-radius: 8px;
   font-size: 0.85rem;
   color: #4a5568;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.demo-credentials {
+.rbac-note svg {
+  flex-shrink: 0;
+}
+
+.register-link {
   text-align: center;
   margin-top: 1rem;
   padding: 1rem;
-  background: #edf2f7;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  color: #2d3748;
+  border-top: 1px solid #e2e8f0;
 }
 
-.demo-credentials p {
-  margin: 0.25rem 0;
+.register-link p {
+  margin: 0;
+  color: #4a5568;
+  font-size: 0.9rem;
 }
 
-.demo-credentials strong {
-  color: #1a202c;
+.link-btn {
+  background: none;
+  border: none;
+  color: #667eea;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 0;
+  margin-left: 0.25rem;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+.login-box {
+  background: white;
+  border-radius: 20px;
+  padding: 3rem;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }

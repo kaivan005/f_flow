@@ -138,14 +138,20 @@ CREATE TABLE expenses (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Insert default roles
-INSERT INTO roles (role_name) VALUES ('Manager'), ('Dispatcher');
+INSERT INTO roles (role_name) VALUES 
+('Admin'),
+('Manager'), 
+('Dispatcher'),
+('Driver');
 
 -- Insert demo users
 -- Password for all demo users is: password123
--- Hash generated using bcrypt with salt rounds 10
+-- Hash generated using bcrypt with salt rounds 10: $2a$10$rlKSI4YyGBauRneXuORszeKan0vAvJHBPW4VRj7wtep6cSjMwEUP.
 INSERT INTO users (full_name, email, password_hash, role_id, account_status) VALUES
-('John Manager', 'manager@fleetflow.com', '$2a$10$rN5YqN6qGZVqEZqHZqGZVOQ7GZqGZqGZqGZqGZqGZqGZqGZqGZqGZ', 1, 'Active'),
-('Sarah Dispatcher', 'dispatcher@fleetflow.com', '$2a$10$rN5YqN6qGZVqEZqHZqGZVOQ7GZqGZqGZqGZqGZqGZqGZqGZqGZqGZ', 2, 'Active');
+('Admin User', 'admin@fleetflow.com', '$2a$10$rlKSI4YyGBauRneXuORszeKan0vAvJHBPW4VRj7wtep6cSjMwEUP.', 1, 'Active'),
+('John Manager', 'manager@fleetflow.com', '$2a$10$rlKSI4YyGBauRneXuORszeKan0vAvJHBPW4VRj7wtep6cSjMwEUP.', 2, 'Active'),
+('Sarah Dispatcher', 'dispatcher@fleetflow.com', '$2a$10$rlKSI4YyGBauRneXuORszeKan0vAvJHBPW4VRj7wtep6cSjMwEUP.', 3, 'Active'),
+('Mike Driver', 'driver@fleetflow.com', '$2a$10$rlKSI4YyGBauRneXuORszeKan0vAvJHBPW4VRj7wtep6cSjMwEUP.', 4, 'Active');
 
 -- Insert sample vehicles
 INSERT INTO vehicles (vehicle_name, model, license_plate, vehicle_type, max_capacity_kg, odometer_km, status, acquisition_cost) VALUES

@@ -51,7 +51,17 @@
 }
 
 .stat-icon {
-  font-size: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.stat-icon svg {
+  width: 32px;
+  height: 32px;
 }
 
 .stat-content h3 {
@@ -137,7 +147,17 @@
 }
 
 .activity-icon {
-  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.activity-icon svg {
+  width: 20px;
+  height: 20px;
 }
 
 .activity-details p {
